@@ -152,6 +152,7 @@ If you want to build CuPy from `source distribution <https://pypi.python.org/pyp
 # Keys of the configuration are as follows:
 # - `python_tag`: a CPython implementation tag
 # - `abi_tag_linux`: a CPython ABI tag for Linux
+# - `abi_tag_win`: a CPython ABI tag for Windows
 # - `requires`: a list of required packages to build wheels
 WHEEL_PYTHON_VERSIONS = {
     '2.7.6': {
