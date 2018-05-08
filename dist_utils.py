@@ -3,6 +3,7 @@
 import ctypes
 import ctypes.util
 import imp
+import os
 
 from dist_config import (
     WHEEL_LINUX_CONFIGS,
@@ -50,3 +51,30 @@ def get_system_cuda_version(cudart_name='cudart'):
     version = ctypes.c_int()
     assert libcudart.cudaRuntimeGetVersion(ctypes.byref(version)) == 0
     return version.value
+
+
+# See also: distutils.spawn.find_executable
+def find_executable(executable, path=None):
+    """Tries to find 'executable' in the directories listed in 'path'.
+
+    A string listing directories separated by 'os.pathsep'; defaults to
+    os.environ['PATH'].  Returns the complete filename or None if not found.
+    """
+    if path is None:
+        path = os.environ['PATH']
+
+    paths = path.split(os.pathsep)
+    base, ext = os.path.splitext(executable)
+
+    if (sys.platform == 'win32') and (ext != '.exe'):
+        executable = executable + '.exe'
+
+    if not os.path.isfile(executable):
+        for p in paths:
+            f = os.path.join(p, executable)
+            if os.path.isfile(f):
+                # the file exists, we have a shot at spawn working
+                return f
+        return None
+    else:
+        return executable
