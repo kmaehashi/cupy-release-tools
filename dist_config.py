@@ -145,7 +145,7 @@ WHEEL_LINUX_CONFIGS = {
             ],
         },
         'verify_image': 'nvidia/cuda:10.0-devel-{system}',
-        'verify_systems': ['ubuntu18.04'],
+        'verify_systems': ['ubuntu16.04'],
     }
 }
 
