@@ -15,6 +15,7 @@ import time
 from dist_config import (
     CYTHON_VERSION,
     SDIST_CONFIG,
+    SDIST_LONG_DESCRIPTION,
     WHEEL_LINUX_CONFIGS,
     WHEEL_WINDOWS_CONFIGS,
     WHEEL_PYTHON_VERSIONS,
@@ -221,26 +222,27 @@ class Controller(object):
                 '(version {}, for CUDA {} + Python {})'.format(
                     source, version, cuda_version, python_version))
             action = 'bdist_wheel'
-            # Rename wheels to manylinux1.
-            asset_name = wheel_name(
-                cuda_version, version, python_version, 'linux_x86_64')
-            asset_dest_name = wheel_name(
-                cuda_version, version, python_version, 'manylinux1_x86_64')
             image_tag = 'cupy-builder-{}'.format(cuda_version)
             base_image = WHEEL_LINUX_CONFIGS[cuda_version]['image']
             package_name = WHEEL_LINUX_CONFIGS[cuda_version]['name']
             nccl_config = WHEEL_LINUX_CONFIGS[cuda_version]['nccl']
             long_description = WHEEL_LONG_DESCRIPTION.format(cuda=cuda_version)
+            # Rename wheels to manylinux1.
+            asset_name = wheel_name(
+                package_name, version, python_version, 'linux_x86_64')
+            asset_dest_name = wheel_name(
+                package_name, version, python_version, 'manylinux1_x86_64')
         elif target == 'sdist':
             log('Starting sdist build from {} (version {})'.format(
                 source, version))
             action = 'sdist'
-            asset_name = sdist_name('cupy', version)
-            asset_dest_name = asset_name
             image_tag = 'cupy-builder-sdist'
             base_image = SDIST_CONFIG['image']
+            package_name = 'cupy'
             nccl_config = SDIST_CONFIG['nccl']
-            long_description = None
+            long_description = SDIST_LONG_DESCRIPTION
+            asset_name = sdist_name('cupy', version)
+            asset_dest_name = asset_name
             assert nccl_config is not None
         else:
             raise RuntimeError('unknown target')
@@ -255,15 +257,17 @@ class Controller(object):
         if nccl_config:
             agent_args += ['--nccl', 'nccl']
 
+        # Add arguments to pass to setup.py.
+        setup_args = [
+            '--cupy-package-name', package_name,
+            '--cupy-long-description', '../description.rst',
+        ]
         if target == 'wheel-linux':
             # Add requirements for build.
             for req in WHEEL_PYTHON_VERSIONS[python_version]['requires']:
                 agent_args += ['--requires', req]
 
-            # Add arguments to pass to setup.py.
-            setup_args = [
-                '--cupy-package-name', package_name,
-                '--cupy-long-description', '../description.rst',
+            setup_args += [
                 '--cupy-no-rpath',
             ]
             for lib in WHEEL_LINUX_CONFIGS[cuda_version]['libs']:
@@ -360,11 +364,11 @@ class Controller(object):
                 source, version, cuda_version, python_version))
 
         action = 'bdist_wheel'
-        asset_name = wheel_name(
-            cuda_version, version, python_version, 'win_amd64')
-        asset_dest_name = asset_name
         package_name = WHEEL_WINDOWS_CONFIGS[cuda_version]['name']
         long_description = WHEEL_LONG_DESCRIPTION.format(cuda=cuda_version)
+        asset_name = wheel_name(
+            package_name, version, python_version, 'win_amd64')
+        asset_dest_name = asset_name
 
         agent_args = [
             '--action', action,
