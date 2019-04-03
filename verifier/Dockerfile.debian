@@ -39,9 +39,8 @@ RUN for VERSION in ${python_versions}; do \
 
 # Install NCCL
 COPY nccl /nccl
-RUN find /nccl && \
-    ( [ -d /nccl/lib ]     && mv /nccl/lib/*     /usr/local/cuda/lib64 ) && \
-    ( [ -d /nccl/include ] && mv /nccl/include/* /usr/local/cuda/include ) && \
+RUN ( [ ! -d /nccl/lib ]     || mv /nccl/lib/*     /usr/local/cuda/lib64 ) && \
+    ( [ ! -d /nccl/include ] || mv /nccl/include/* /usr/local/cuda/include ) && \
     ldconfig
 
 # Use /tmp as a temporary home to install package.
