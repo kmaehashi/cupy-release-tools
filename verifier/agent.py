@@ -52,7 +52,9 @@ class VerifierAgent(object):
             self._log('Using Python from system')
 
         self._log('Installing distribution...')
-        cmdline = pycommand + ['-m', 'pip', 'install', '-vvv', args.dist]
+        cmdline = pycommand + [
+            '-m', 'pip', 'install', '-vvv', '--user', args.dist,
+        ]
         self._run(*cmdline)
 
         try:
