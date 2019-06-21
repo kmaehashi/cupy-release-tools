@@ -175,6 +175,9 @@ WHEEL_LINUX_CONFIGS = {
             '/usr/local/cuda/lib64/libcudnn.so.7',  # cuDNN v7
             '/usr/local/cuda/lib64/libnccl.so.2',  # NCCL v2
         ],
+        'includes': [
+            ('/usr/local/cuda/include/cudnn.h', 'cudnn.h')
+        ],
         'nccl': {
             'type': 'v2-tar',
             'files': [
