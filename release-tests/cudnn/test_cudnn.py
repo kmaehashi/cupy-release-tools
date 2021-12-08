@@ -1,3 +1,4 @@
+import sys
 import unittest
 
 import cupy
@@ -16,18 +17,22 @@ class TestCuDNN(unittest.TestCase):
         libcudnn.createRNNDataDescriptor()
 
         # cudnn_cnn_train
-        libcudnn.createFusedOpsPlan(
-            libcudnn.CUDNN_FUSED_SCALE_BIAS_ACTIVATION_CONV_BNSTATS)
+        # TODO(kmaehashi) support Windows
+        if sys.platform == 'linux':
+            libcudnn.createFusedOpsPlan(
+                libcudnn.CUDNN_FUSED_SCALE_BIAS_ACTIVATION_CONV_BNSTATS)
 
         # cudnn_cnn_infer
         # libcudnn.convolutionForward
-        x = cupy.random.uniform(0, 1, (10, 3, 30, 40)).astype(cupy.float32)
-        W = cupy.random.uniform(0, 1, (1, 3, 10, 10)).astype(cupy.float32)
-        b = cupy.random.uniform(0, 1, (1,)).astype(cupy.float32)
-        y = cupy.random.uniform(0, 1, (10, 1, 7, 6)).astype(cupy.float32)
-        cupy.cudnn.convolution_forward(
-            x, W, b, y, (5, 5), (5, 7), (1, 1), 1,
-            auto_tune=False, tensor_core='never')
+        # TODO(kmaehashi) support Windows
+        if sys.platform == 'linux':
+            x = cupy.random.uniform(0, 1, (10, 3, 30, 40)).astype(cupy.float32)
+            W = cupy.random.uniform(0, 1, (1, 3, 10, 10)).astype(cupy.float32)
+            b = cupy.random.uniform(0, 1, (1,)).astype(cupy.float32)
+            y = cupy.random.uniform(0, 1, (10, 1, 7, 6)).astype(cupy.float32)
+            cupy.cudnn.convolution_forward(
+                x, W, b, y, (5, 5), (5, 7), (1, 1), 1,
+                auto_tune=False, tensor_core='never')
 
         # cudnn_ops_train
         # libcudnn.activationBackward
