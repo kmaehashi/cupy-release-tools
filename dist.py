@@ -561,7 +561,8 @@ class Controller:
 
             # Copy source tree to working directory.
             log('Copying source tree from: {}'.format(source))
-            shutil.copytree(source, '{}/cupy'.format(workdir))
+            shutil.copytree(source, '{}/cupy'.format(workdir),
+                ignore_dangling_symlinks=True)
 
             # Add long description file.
             with open('{}/description.rst'.format(workdir), 'w') as f:
